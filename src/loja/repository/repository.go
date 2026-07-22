@@ -78,6 +78,7 @@ type draftSettingsPayload struct {
 	CustomBlockCSS        string                      `json:"custom_block_css"`
 	CustomBlockJS         string                      `json:"custom_block_js"`
 	FeatureHighlights     []entity.FeatureHighlight   `json:"feature_highlights"`
+	InstitutionalSection  entity.InstitutionalSectionConfig `json:"institutional_section"`
 	FooterLinks           []entity.NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string                      `json:"footer_contact_title"`
 	FooterContactText     string                      `json:"footer_contact_text"`
@@ -148,6 +149,7 @@ type legacyDraftSettingsPayload struct {
 	CustomBlockCSS        string                      `json:"CustomBlockCSS"`
 	CustomBlockJS         string                      `json:"CustomBlockJS"`
 	FeatureHighlights     []entity.FeatureHighlight   `json:"FeatureHighlights"`
+	InstitutionalSection  entity.InstitutionalSectionConfig `json:"InstitutionalSection"`
 	FooterLinks           []entity.NavigationLink     `json:"FooterLinks"`
 	FooterContactTitle    string                      `json:"FooterContactTitle"`
 	FooterContactText     string                      `json:"FooterContactText"`
@@ -223,6 +225,7 @@ func newDraftSettingsPayload(input entity.SettingsRecord) draftSettingsPayload {
 		CustomBlockCSS:        input.CustomBlockCSS,
 		CustomBlockJS:         input.CustomBlockJS,
 		FeatureHighlights:     input.FeatureHighlights,
+		InstitutionalSection:  input.InstitutionalSection,
 		FooterLinks:           input.FooterLinks,
 		FooterContactTitle:    input.FooterContactTitle,
 		FooterContactText:     input.FooterContactText,
@@ -295,6 +298,7 @@ func (p draftSettingsPayload) toSettingsRecord() entity.SettingsRecord {
 		CustomBlockCSS:        p.CustomBlockCSS,
 		CustomBlockJS:         p.CustomBlockJS,
 		FeatureHighlights:     p.FeatureHighlights,
+		InstitutionalSection:  p.InstitutionalSection,
 		FooterLinks:           p.FooterLinks,
 		FooterContactTitle:    p.FooterContactTitle,
 		FooterContactText:     p.FooterContactText,
@@ -367,6 +371,7 @@ func (p legacyDraftSettingsPayload) toSettingsRecord() entity.SettingsRecord {
 		CustomBlockCSS:        p.CustomBlockCSS,
 		CustomBlockJS:         p.CustomBlockJS,
 		FeatureHighlights:     p.FeatureHighlights,
+		InstitutionalSection:  p.InstitutionalSection,
 		FooterLinks:           p.FooterLinks,
 		FooterContactTitle:    p.FooterContactTitle,
 		FooterContactText:     p.FooterContactText,
@@ -434,6 +439,7 @@ func (r *Repository) GetSettings(ctx context.Context) (entity.SettingsRecord, er
 			coalesce(custom_block_css, ''),
 			coalesce(custom_block_js, ''),
 			coalesce(feature_highlights_json, '[]'),
+			coalesce(institutional_section_json, ''),
 			coalesce(footer_links_json, '[]'),
 			coalesce(footer_contact_title, ''),
 			coalesce(footer_contact_text, ''),
@@ -461,7 +467,7 @@ func (r *Repository) GetSettings(ctx context.Context) (entity.SettingsRecord, er
 	var bannerDesktopWidth, bannerDesktopHeight, bannerDesktopSize int
 	var bannerMobileBase64, bannerMobileMime, bannerMobileHash string
 	var bannerMobileWidth, bannerMobileHeight, bannerMobileSize int
-	var menuLinksJSON, sectionOrderJSON, sectionVisibilityJSON, featureHighlightsJSON, footerLinksJSON string
+	var menuLinksJSON, sectionOrderJSON, sectionVisibilityJSON, featureHighlightsJSON, institutionalSectionJSON, footerLinksJSON string
 	var integrationsJSON string
 	var launchesSectionJSON, featuredSectionJSON, promotionsSectionJSON string
 
@@ -521,6 +527,7 @@ func (r *Repository) GetSettings(ctx context.Context) (entity.SettingsRecord, er
 		&record.CustomBlockCSS,
 		&record.CustomBlockJS,
 		&featureHighlightsJSON,
+		&institutionalSectionJSON,
 		&footerLinksJSON,
 		&record.FooterContactTitle,
 		&record.FooterContactText,
@@ -563,6 +570,7 @@ func (r *Repository) GetSettings(ctx context.Context) (entity.SettingsRecord, er
 	record.SectionOrder = unmarshalSectionOrder(sectionOrderJSON)
 	record.VisibleSections = unmarshalSectionVisibility(sectionVisibilityJSON)
 	record.FeatureHighlights = unmarshalFeatureHighlights(featureHighlightsJSON)
+	record.InstitutionalSection = unmarshalInstitutionalSectionConfig(institutionalSectionJSON)
 	record.FooterLinks = unmarshalNavigationLinks(footerLinksJSON)
 	record.LaunchesSection = unmarshalProductSectionConfig(launchesSectionJSON)
 	record.FeaturedSection = unmarshalProductSectionConfig(featuredSectionJSON)
@@ -711,6 +719,7 @@ func (r *Repository) UpsertSettings(ctx context.Context, input entity.SettingsRe
 			custom_block_css,
 			custom_block_js,
 			feature_highlights_json,
+			institutional_section_json,
 			footer_links_json,
 			footer_contact_title,
 			footer_contact_text,
@@ -732,7 +741,7 @@ func (r *Repository) UpsertSettings(ctx context.Context, input entity.SettingsRe
 			$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,
 			$62,$63,$64,$65,$66,$67,$68,$69,$70,$71,
 			$72,$73,$74,$75,$76,$77,$78,$79,$80,$81,
-			$82,$83,$84,$85,$86,
+			$82,$83,$84,$85,$86,$87,
 			NOW()
 		)
 		ON CONFLICT (id) DO UPDATE SET
@@ -790,6 +799,7 @@ func (r *Repository) UpsertSettings(ctx context.Context, input entity.SettingsRe
 			custom_block_css = EXCLUDED.custom_block_css,
 			custom_block_js = EXCLUDED.custom_block_js,
 			feature_highlights_json = EXCLUDED.feature_highlights_json,
+			institutional_section_json = EXCLUDED.institutional_section_json,
 			footer_links_json = EXCLUDED.footer_links_json,
 			footer_contact_title = EXCLUDED.footer_contact_title,
 			footer_contact_text = EXCLUDED.footer_contact_text,
@@ -881,6 +891,7 @@ func (r *Repository) UpsertSettings(ctx context.Context, input entity.SettingsRe
 		nullableString(input.CustomBlockCSS),
 		nullableString(input.CustomBlockJS),
 		marshalFeatureHighlights(input.FeatureHighlights),
+		marshalInstitutionalSectionConfig(input.InstitutionalSection),
 		marshalNavigationLinks(input.FooterLinks),
 		nullableString(input.FooterContactTitle),
 		nullableString(input.FooterContactText),
@@ -1989,9 +2000,12 @@ func marshalFeatureHighlights(items []entity.FeatureHighlight) any {
 			continue
 		}
 		normalized = append(normalized, entity.FeatureHighlight{
-			Title: title,
-			Text:  text,
-			Icon:  icon,
+			Title:      title,
+			Text:       text,
+			Icon:       icon,
+			TextAlign:  strings.TrimSpace(item.TextAlign),
+			IconSize:   strings.TrimSpace(item.IconSize),
+			FontFamily: strings.TrimSpace(item.FontFamily),
 		})
 	}
 	if len(normalized) == 0 {
@@ -2005,6 +2019,14 @@ func marshalFeatureHighlights(items []entity.FeatureHighlight) any {
 }
 
 func marshalProductSectionConfig(item entity.ProductSectionConfig) any {
+	payload, err := json.Marshal(item)
+	if err != nil {
+		return "{}"
+	}
+	return string(payload)
+}
+
+func marshalInstitutionalSectionConfig(item entity.InstitutionalSectionConfig) any {
 	payload, err := json.Marshal(item)
 	if err != nil {
 		return "{}"
@@ -2070,6 +2092,18 @@ func unmarshalProductSectionConfig(value string) entity.ProductSectionConfig {
 	var item entity.ProductSectionConfig
 	if err := json.Unmarshal([]byte(trimmed), &item); err != nil {
 		return entity.ProductSectionConfig{}
+	}
+	return item
+}
+
+func unmarshalInstitutionalSectionConfig(value string) entity.InstitutionalSectionConfig {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return entity.InstitutionalSectionConfig{}
+	}
+	var item entity.InstitutionalSectionConfig
+	if err := json.Unmarshal([]byte(trimmed), &item); err != nil {
+		return entity.InstitutionalSectionConfig{}
 	}
 	return item
 }

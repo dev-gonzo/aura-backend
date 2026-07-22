@@ -39,9 +39,12 @@ type NavigationLink struct {
 }
 
 type FeatureHighlight struct {
-	Title string `json:"title"`
-	Text  string `json:"text"`
-	Icon  string `json:"icon"`
+	Title      string `json:"title"`
+	Text       string `json:"text"`
+	Icon       string `json:"icon"`
+	TextAlign  string `json:"text_align"`
+	IconSize   string `json:"icon_size"`
+	FontFamily string `json:"font_family"`
 }
 
 type ProductSectionDisplayMode string
@@ -56,6 +59,15 @@ type ProductSectionConfig struct {
 	Title       string                    `json:"title"`
 	Description string                    `json:"description"`
 	DisplayMode ProductSectionDisplayMode `json:"display_mode"`
+}
+
+type InstitutionalSectionConfig struct {
+	Eyebrow     string `json:"eyebrow"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	DisplayMode string `json:"display_mode"`
+	WidthMode   string `json:"width_mode"`
+	BackgroundColor string `json:"background_color"`
 }
 
 type StoreCategoryPayload struct {
@@ -163,6 +175,7 @@ type SettingsRecord struct {
 	CustomBlockCSS        string               `json:"custom_block_css"`
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
+	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
@@ -238,6 +251,7 @@ type UpdateSettingsRequest struct {
 	CustomBlockCSS        string               `json:"custom_block_css"`
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
+	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
@@ -308,6 +322,7 @@ type SettingsResponse struct {
 	CustomBlockCSS        string               `json:"custom_block_css"`
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
+	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
@@ -473,6 +488,7 @@ type PublicConfigResponse struct {
 	CustomBlockCSS        string               `json:"custom_block_css"`
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
+	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`

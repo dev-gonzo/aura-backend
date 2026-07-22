@@ -339,6 +339,7 @@ func (s *Service) GetPublicConfig(ctx context.Context, preview bool) (entity.Pub
 		CustomBlockCSS:        record.CustomBlockCSS,
 		CustomBlockJS:         record.CustomBlockJS,
 		FeatureHighlights:     record.FeatureHighlights,
+		InstitutionalSection:  record.InstitutionalSection,
 		FooterLinks:           record.FooterLinks,
 		FooterContactTitle:    record.FooterContactTitle,
 		FooterContactText:     record.FooterContactText,
@@ -430,6 +431,7 @@ func mapSettingsResponse(record entity.SettingsRecord) entity.SettingsResponse {
 		CustomBlockCSS:        record.CustomBlockCSS,
 		CustomBlockJS:         record.CustomBlockJS,
 		FeatureHighlights:     record.FeatureHighlights,
+		InstitutionalSection:  record.InstitutionalSection,
 		FooterLinks:           record.FooterLinks,
 		FooterContactTitle:    record.FooterContactTitle,
 		FooterContactText:     record.FooterContactText,
@@ -505,6 +507,7 @@ func normalizeSettingsRequest(request entity.UpdateSettingsRequest) (entity.Sett
 		CustomBlockCSS:        strings.TrimSpace(request.CustomBlockCSS),
 		CustomBlockJS:         strings.TrimSpace(request.CustomBlockJS),
 		FeatureHighlights:     sanitizeFeatureHighlights(request.FeatureHighlights),
+		InstitutionalSection:  normalizeInstitutionalSectionConfig(request.InstitutionalSection),
 		FooterLinks:           sanitizeNavigationLinks(request.FooterLinks),
 		FooterContactTitle:    strings.TrimSpace(request.FooterContactTitle),
 		FooterContactText:     strings.TrimSpace(request.FooterContactText),
@@ -1050,9 +1053,12 @@ func sanitizeFeatureHighlights(items []entity.FeatureHighlight) []entity.Feature
 			continue
 		}
 		highlights = append(highlights, entity.FeatureHighlight{
-			Title: title,
-			Text:  text,
-			Icon:  icon,
+			Title:      title,
+			Text:       text,
+			Icon:       icon,
+			TextAlign:  normalizeTextAlign(item.TextAlign),
+			IconSize:   normalizeIconSize(item.IconSize),
+			FontFamily: normalizeFontFamily(item.FontFamily),
 		})
 	}
 	return highlights
@@ -1328,6 +1334,35 @@ func normalizeProductSectionConfig(
 	return config
 }
 
+func normalizeInstitutionalSectionConfig(value entity.InstitutionalSectionConfig) entity.InstitutionalSectionConfig {
+	return entity.InstitutionalSectionConfig{
+		Eyebrow:         strings.TrimSpace(value.Eyebrow),
+		Title:           strings.TrimSpace(value.Title),
+		Description:     strings.TrimSpace(value.Description),
+		DisplayMode:     normalizeInstitutionalSectionDisplayMode(value.DisplayMode),
+		WidthMode:       normalizeInstitutionalSectionWidthMode(value.WidthMode),
+		BackgroundColor: normalizeHexColor(value.BackgroundColor, "#0F172A"),
+	}
+}
+
+func normalizeInstitutionalSectionDisplayMode(value string) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "continuous":
+		return "continuous"
+	default:
+		return "cards"
+	}
+}
+
+func normalizeInstitutionalSectionWidthMode(value string) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "full_width":
+		return "full_width"
+	default:
+		return "contained"
+	}
+}
+
 func normalizeProductSectionDisplayMode(value entity.ProductSectionDisplayMode) entity.ProductSectionDisplayMode {
 	switch strings.TrimSpace(string(value)) {
 	case string(entity.ProductSectionDisplayModeHorizontalScroll):
@@ -1361,6 +1396,28 @@ func defaultPromotionsSectionConfig() entity.ProductSectionConfig {
 		Title:       "Ofertas e descontos",
 		Description: "",
 		DisplayMode: entity.ProductSectionDisplayModeWrap,
+	}
+}
+
+func normalizeTextAlign(value string) string {
+	switch strings.TrimSpace(value) {
+	case "center":
+		return "center"
+	case "right":
+		return "right"
+	default:
+		return "left"
+	}
+}
+
+func normalizeIconSize(value string) string {
+	switch strings.TrimSpace(value) {
+	case "small":
+		return "small"
+	case "large":
+		return "large"
+	default:
+		return "medium"
 	}
 }
 
@@ -1409,6 +1466,8 @@ func normalizeLoadedSettingsRecord(record entity.SettingsRecord) entity.Settings
 	record.LaunchesSection = normalizeProductSectionConfig(record.LaunchesSection, defaultLaunchesSectionConfig())
 	record.FeaturedSection = normalizeProductSectionConfig(record.FeaturedSection, defaultFeaturedSectionConfig())
 	record.PromotionsSection = normalizeProductSectionConfig(record.PromotionsSection, defaultPromotionsSectionConfig())
+	record.InstitutionalSection = normalizeInstitutionalSectionConfig(record.InstitutionalSection)
+	record.FeatureHighlights = sanitizeFeatureHighlights(record.FeatureHighlights)
 	return record
 }
 
