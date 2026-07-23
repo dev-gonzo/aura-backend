@@ -340,6 +340,7 @@ func (s *Service) GetPublicConfig(ctx context.Context, preview bool) (entity.Pub
 		CustomBlockJS:         record.CustomBlockJS,
 		FeatureHighlights:     record.FeatureHighlights,
 		InstitutionalSection:  record.InstitutionalSection,
+		ProductListingConfig:  record.ProductListingConfig,
 		FooterLinks:           record.FooterLinks,
 		FooterContactTitle:    record.FooterContactTitle,
 		FooterContactText:     record.FooterContactText,
@@ -432,6 +433,7 @@ func mapSettingsResponse(record entity.SettingsRecord) entity.SettingsResponse {
 		CustomBlockJS:         record.CustomBlockJS,
 		FeatureHighlights:     record.FeatureHighlights,
 		InstitutionalSection:  record.InstitutionalSection,
+		ProductListingConfig:  record.ProductListingConfig,
 		FooterLinks:           record.FooterLinks,
 		FooterContactTitle:    record.FooterContactTitle,
 		FooterContactText:     record.FooterContactText,
@@ -508,6 +510,7 @@ func normalizeSettingsRequest(request entity.UpdateSettingsRequest) (entity.Sett
 		CustomBlockJS:         strings.TrimSpace(request.CustomBlockJS),
 		FeatureHighlights:     sanitizeFeatureHighlights(request.FeatureHighlights),
 		InstitutionalSection:  normalizeInstitutionalSectionConfig(request.InstitutionalSection),
+		ProductListingConfig:  normalizeProductListingConfig(request.ProductListingConfig),
 		FooterLinks:           sanitizeNavigationLinks(request.FooterLinks),
 		FooterContactTitle:    strings.TrimSpace(request.FooterContactTitle),
 		FooterContactText:     strings.TrimSpace(request.FooterContactText),
@@ -1363,6 +1366,135 @@ func normalizeInstitutionalSectionWidthMode(value string) string {
 	}
 }
 
+func defaultProductListingConfig() entity.ProductListingConfig {
+	return entity.ProductListingConfig{
+		ShowBuyButton:            true,
+		BuyButtonLabel:           "Comprar",
+		BuyButtonUppercase:       false,
+		ShowAddToCartButton:      true,
+		AddToCartButtonLabel:     "Add ao carrinho",
+		AddToCartButtonUppercase: false,
+		ShowPrice:                true,
+		ShowComparePrice:         true,
+		ShowTags:                 true,
+		CardBackgroundColor:      "#07153A",
+		ShowBorder:               true,
+		BorderColor:              "rgba(99, 102, 241, 0.2)",
+		BorderWidth:              1,
+		ShowShadow:               true,
+		ShadowDirection:          "bottom",
+		ShadowIntensity:          "medium",
+		UseDefaultTitleColor:     true,
+		TitleTextColor:           "#F8FAFC",
+		UseDefaultBodyColor:      true,
+		BodyTextColor:            "#B5C0DC",
+		SecondaryButtonColor:     "#14224A",
+		SecondaryButtonTextColor: "#F8FAFC",
+		ButtonShape:              "soft",
+	}
+}
+
+func normalizeProductListingConfig(value entity.ProductListingConfig) entity.ProductListingConfig {
+	defaults := defaultProductListingConfig()
+	config := entity.ProductListingConfig{
+		ShowBuyButton:            value.ShowBuyButton,
+		BuyButtonLabel:           strings.TrimSpace(value.BuyButtonLabel),
+		BuyButtonUppercase:       value.BuyButtonUppercase,
+		ShowAddToCartButton:      value.ShowAddToCartButton,
+		AddToCartButtonLabel:     strings.TrimSpace(value.AddToCartButtonLabel),
+		AddToCartButtonUppercase: value.AddToCartButtonUppercase,
+		ShowPrice:                value.ShowPrice,
+		ShowComparePrice:         value.ShowComparePrice,
+		ShowTags:                 value.ShowTags,
+		CardBackgroundColor:      normalizeHexColor(value.CardBackgroundColor, defaults.CardBackgroundColor),
+		ShowBorder:               value.ShowBorder,
+		BorderColor:              normalizeCssColor(value.BorderColor, normalizeHexColor(value.CardBackgroundColor, defaults.CardBackgroundColor)),
+		BorderWidth:              normalizeBorderWidth(value.BorderWidth),
+		ShowShadow:               value.ShowShadow,
+		ShadowDirection:          normalizeShadowDirection(value.ShadowDirection),
+		ShadowIntensity:          normalizeShadowIntensity(value.ShadowIntensity),
+		UseDefaultTitleColor:     value.UseDefaultTitleColor,
+		TitleTextColor:           normalizeHexColor(value.TitleTextColor, defaults.TitleTextColor),
+		UseDefaultBodyColor:      value.UseDefaultBodyColor,
+		BodyTextColor:            normalizeHexColor(value.BodyTextColor, defaults.BodyTextColor),
+		SecondaryButtonColor:     normalizeHexColor(value.SecondaryButtonColor, defaults.SecondaryButtonColor),
+		SecondaryButtonTextColor: normalizeHexColor(value.SecondaryButtonTextColor, defaults.SecondaryButtonTextColor),
+		ButtonShape:              normalizeProductButtonShape(value.ButtonShape),
+	}
+
+	if config.BuyButtonLabel == "" {
+		config.BuyButtonLabel = defaults.BuyButtonLabel
+	}
+	if config.AddToCartButtonLabel == "" {
+		config.AddToCartButtonLabel = defaults.AddToCartButtonLabel
+	}
+
+	return config
+}
+
+func normalizeBorderWidth(value int) int {
+	switch {
+	case value < 0:
+		return 0
+	case value > 6:
+		return 6
+	default:
+		return value
+	}
+}
+
+func normalizeShadowDirection(value string) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "top":
+		return "top"
+	case "left":
+		return "left"
+	case "right":
+		return "right"
+	case "bottom-left":
+		return "bottom-left"
+	case "bottom-right":
+		return "bottom-right"
+	default:
+		return "bottom"
+	}
+}
+
+func normalizeShadowIntensity(value string) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "soft":
+		return "soft"
+	case "strong":
+		return "strong"
+	default:
+		return "medium"
+	}
+}
+
+func normalizeProductButtonShape(value string) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "sharp":
+		return "sharp"
+	case "rounded":
+		return "rounded"
+	case "pill":
+		return "pill"
+	default:
+		return "soft"
+	}
+}
+
+func normalizeCssColor(value string, fallback string) string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return fallback
+	}
+	if strings.HasPrefix(trimmed, "#") {
+		return normalizeHexColor(trimmed, fallback)
+	}
+	return trimmed
+}
+
 func normalizeProductSectionDisplayMode(value entity.ProductSectionDisplayMode) entity.ProductSectionDisplayMode {
 	switch strings.TrimSpace(string(value)) {
 	case string(entity.ProductSectionDisplayModeHorizontalScroll):
@@ -1467,6 +1599,7 @@ func normalizeLoadedSettingsRecord(record entity.SettingsRecord) entity.Settings
 	record.FeaturedSection = normalizeProductSectionConfig(record.FeaturedSection, defaultFeaturedSectionConfig())
 	record.PromotionsSection = normalizeProductSectionConfig(record.PromotionsSection, defaultPromotionsSectionConfig())
 	record.InstitutionalSection = normalizeInstitutionalSectionConfig(record.InstitutionalSection)
+	record.ProductListingConfig = normalizeProductListingConfig(record.ProductListingConfig)
 	record.FeatureHighlights = sanitizeFeatureHighlights(record.FeatureHighlights)
 	return record
 }

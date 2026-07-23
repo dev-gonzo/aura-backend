@@ -70,6 +70,32 @@ type InstitutionalSectionConfig struct {
 	BackgroundColor string `json:"background_color"`
 }
 
+type ProductListingConfig struct {
+	ShowBuyButton          bool   `json:"show_buy_button"`
+	BuyButtonLabel         string `json:"buy_button_label"`
+	BuyButtonUppercase     bool   `json:"buy_button_uppercase"`
+	ShowAddToCartButton    bool   `json:"show_add_to_cart_button"`
+	AddToCartButtonLabel   string `json:"add_to_cart_button_label"`
+	AddToCartButtonUppercase bool `json:"add_to_cart_button_uppercase"`
+	ShowPrice              bool   `json:"show_price"`
+	ShowComparePrice       bool   `json:"show_compare_price"`
+	ShowTags               bool   `json:"show_tags"`
+	CardBackgroundColor    string `json:"card_background_color"`
+	ShowBorder             bool   `json:"show_border"`
+	BorderColor            string `json:"border_color"`
+	BorderWidth            int    `json:"border_width"`
+	ShowShadow             bool   `json:"show_shadow"`
+	ShadowDirection        string `json:"shadow_direction"`
+	ShadowIntensity        string `json:"shadow_intensity"`
+	UseDefaultTitleColor   bool   `json:"use_default_title_color"`
+	TitleTextColor         string `json:"title_text_color"`
+	UseDefaultBodyColor    bool   `json:"use_default_body_color"`
+	BodyTextColor          string `json:"body_text_color"`
+	SecondaryButtonColor   string `json:"secondary_button_color"`
+	SecondaryButtonTextColor string `json:"secondary_button_text_color"`
+	ButtonShape            string `json:"button_shape"`
+}
+
 type StoreCategoryPayload struct {
 	Nome      string `json:"nome"`
 	Slug      string `json:"slug"`
@@ -176,6 +202,7 @@ type SettingsRecord struct {
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
 	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
+	ProductListingConfig  ProductListingConfig `json:"product_listing_config"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
@@ -252,6 +279,7 @@ type UpdateSettingsRequest struct {
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
 	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
+	ProductListingConfig  ProductListingConfig `json:"product_listing_config"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
@@ -323,6 +351,7 @@ type SettingsResponse struct {
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
 	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
+	ProductListingConfig  ProductListingConfig `json:"product_listing_config"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
@@ -489,6 +518,7 @@ type PublicConfigResponse struct {
 	CustomBlockJS         string               `json:"custom_block_js"`
 	FeatureHighlights     []FeatureHighlight   `json:"feature_highlights"`
 	InstitutionalSection  InstitutionalSectionConfig `json:"institutional_section"`
+	ProductListingConfig  ProductListingConfig `json:"product_listing_config"`
 	FooterLinks           []NavigationLink     `json:"footer_links"`
 	FooterContactTitle    string               `json:"footer_contact_title"`
 	FooterContactText     string               `json:"footer_contact_text"`
